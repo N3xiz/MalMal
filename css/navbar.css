@@ -1,15 +1,14 @@
-/*Background Container*/
-.container-fluid {
-    padding-right: 15px;
-    padding-left: 15px;
-    margin-right: auto;
-    margin-left: auto;
-    background-color: #333333;
+/*Website Name*/
+.navbar-default {
+    background-color: #4a4a4a;
+    border-color: transparent;
+    color: #cacaca;
+    border-radius: 0
 }
 
-/*Website Name*/
+/*brand text color*/
 .navbar-default .navbar-brand {
-    color: #cacaca;
+    color: #ffffffff;
 }
 
 .navbar-default .navbar-brand:hover,

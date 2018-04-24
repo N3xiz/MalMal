@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link href="css/navbar.css" rel="stylesheet">
     <link href="css/sticky-footer.css" rel="stylesheet">
+    <link href="css/content.css" rel="stylesheet">
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
 </head>
@@ -14,7 +15,7 @@
 
 <!--Navigation bar-->
 <nav class="navbar navbar-default">
-    <div class="container-fluid">
+    <div class="container">
         <div class="navbar-header">
             <a class="navbar-brand" href="index.html">MalMal</a>
         </div>
@@ -32,21 +33,29 @@
 <div class="container">
     <h3>Kerninformatiker&#8482</h3>
     <p>Das sind Sascha und Philipp, oder eben alle die mit uns zusammenarbeiten, denn wer sich Kerninformatiker
-    nennen will muss ordentlich Lizenzgebühren blechen!</p>
-    <table cellspacing="10">
-        <tr>
-            <th><img src="img/sascha.jpg" class="img-rounded" alt="Cinque Terre"></th>
-            <th><img src="img/philipp.jpg" class="img-rounded" alt="Cinque Terre"></th>
-        </tr>
-    </table>
-
+        nennen will muss ordentlich Lizenzgebühren blechen!</p>
+    <br>
+    <!--picture grid start-->
+    <div class="row form-group">
+        <div class="col-md-6 form-group">
+            <div class="col-md-12 form-group">
+                <img src="img/sascha.jpg" class="img-rounded img-responsive gap-right" alt="Cinque Terre">
+            </div>
+        </div>
+        <div class="col-md-6 form-group">
+            <div class="col-md-12 form-group">
+                <img src="img/philipp.jpg" class="img-rounded img-responsive" alt="Cinque Terre">
+            </div>
+        </div>
+    </div>
+    <!--picture grid end-->
 
 </div>
 <!--site content end-->
 
 <footer class="footer">
     <div class="container">
-        <p>Toller  Footer</p>
+        <span class="text-muted">Hier würdest du das Impressum und sowas finden wenn wir sowas bräuchten...</span>
     </div>
 </footer>
 </body>
