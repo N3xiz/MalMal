@@ -1,8 +1,12 @@
 /*##########CSS for content start##########*/
-.container {
+.container-fluid {
     width: auto;
-    max-width: 960px;
+    max-width: 75%;
     padding: 0 15px;
+}
+
+.site-content{
+    padding-top: 15px;
 }
 /*##########CSS for content end##########*/
 
