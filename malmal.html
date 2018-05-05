@@ -40,7 +40,7 @@
 <div class="container-fluid site-content">
     <div class="row">
         <div class="col-md-8">
-            <canvas id="canvas" style="border:1px solid #000000;">
+            <canvas id="drawCanvas">
                 Sorry, your browser doesn't support the &lt;canvas&gt; element.
             </canvas>
             <script>
@@ -59,14 +59,14 @@
         </div> <!-- /col-md-4 -->
         <div class="col-md-4 form-text">
             <form>
-                <div class="form-row">
-                    <div class="col" style="margin-bottom: 10px">
-                        <input type="text" class="form-text form-control-plaintext" placeholder="First name">
+                <div class="row">
+                    <div class="col" style="margin-bottom: 5px; margin-top: -4px">
+                        <textarea id="chatBox" readonly></textarea>
                     </div>
                 </div>
-                <div class="form-row">
+                <div class="row">
                     <div class="col">
-                        <input type="text" class="form-control" placeholder="First name">
+                        <input type="text" class="form-control" placeholder="Deine Nachricht" id="messageBox">
                     </div>
                 </div>
             </form>

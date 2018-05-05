@@ -5,10 +5,11 @@
     padding: 0 15px;
 }
 
-.site-content{
+.site-content {
     padding-top: 15px;
     padding-bottom: 15px;
 }
+
 /*##########CSS for content end##########*/
 
 /*##########CSS for sticky footer start##########*/
@@ -16,9 +17,11 @@ html {
     position: relative;
     min-height: 100%;
 }
+
 body {
     margin-bottom: 60px; /* Margin bottom by footer height */
 }
+
 .footer {
     position: absolute;
     bottom: 0;
@@ -28,4 +31,25 @@ body {
     background-color: #24292e;
     color: #cacaca;
 }
+
 /*##########CSS for sticky footer end##########*/
+
+#drawCanvas {
+    border: 1px solid #343a40;
+    border-radius: 5px;
+}
+
+#chatBox {
+    border: 1px solid #343a40;
+    border-radius: 5px;
+    width: 100%;
+    min-height: 600px;
+    max-height: 600px;
+    resize: none;
+    outline: none;
+}
+
+#messageBox {
+    border: 1px solid #343a40;
+    border-radius: 5px;
+}
