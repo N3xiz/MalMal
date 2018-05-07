@@ -13,7 +13,8 @@
 <!--Navigation bar-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="index.html">MalMal</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -36,7 +37,42 @@
 <!--end of Navigation bar-->
 
 <!--site content start-->
-<div class="container-fluid site-content"></div>
+<div class="container-fluid site-content">
+    <div class="row">
+        <div class="col-md-8">
+            <canvas id="drawCanvas">
+                Sorry, your browser doesn't support the &lt;canvas&gt; element.
+            </canvas>
+            <script>
+                var canvas = document.querySelector('canvas');
+                fitToContainer(canvas);
+
+                function fitToContainer(canvas) {
+                    // Make it visually fill the positioned parent
+                    canvas.style.width = '100%';
+                    canvas.style.height = '100%';
+                    // ...then set the internal size to match
+                    canvas.width = canvas.offsetWidth;
+                    canvas.height = canvas.offsetHeight;
+                }
+            </script>
+        </div> <!-- /col-md-4 -->
+        <div class="col-md-4 form-text">
+            <form>
+                <div class="row">
+                    <div class="col" style="margin-bottom: 5px; margin-top: -4px">
+                        <textarea id="chatBox" readonly></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <input type="text" class="form-control" placeholder="Deine Nachricht" id="messageBox">
+                    </div>
+                </div>
+            </form>
+        </div> <!-- /col-md-4 -->
+    </div> <!-- /row -->
+</div>
 <!--site content end-->
 
 <footer class="footer">
