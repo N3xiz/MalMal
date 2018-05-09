@@ -37,14 +37,15 @@ body {
 #drawCanvas {
     border: 1px solid #343a40;
     border-radius: 5px;
+    height: 100%;
+    width: 100%;
 }
 
 #chatBox {
     border: 1px solid #343a40;
     border-radius: 5px;
     width: 100%;
-    min-height: 600px;
-    max-height: 600px;
+    height: 100%;
     resize: none;
     outline: none;
 }
