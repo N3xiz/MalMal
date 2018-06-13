@@ -19,6 +19,8 @@
   "homepage": "https://github.com/Pathen85/WEB-Static-Backend#readme",
   "dependencies": {
     "cors": "^2.8.4",
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "express.io": "^1.1.13",
+    "socket.io": "^2.1.1"
   }
 }
