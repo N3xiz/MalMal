@@ -4,10 +4,36 @@
     <title>Wort einreichen</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
     <link href="css/custom.css" rel="stylesheet">
-    <script src="js/jquery.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+    <script>
+        $(function () { // short for $(document).ready
+            console.log("Running Code");
+        });
+        function putWord() {
+            var payload = "[\"" + $("#wordInput").val() + "\"]";
+            console.log(payload);
+            $.ajax({
+                contentType: 'application/json',
+                data: payload,
+                dataType: 'json',
+                success: function () {
+                    console.log("word input succeeded");
+                    $("#wordInput").val(""); // clear form
+                    alert("Wort eingetragen!");
+                },
+                error: function () {
+                    console.log("Device control failed");
+                    alert("Fehler beim Eintragen!");
+                },
+                processData: false,
+                type: 'PUT',
+                url: 'http://backend.exesyst.com/add-word'
+            });
+        };
+    </script>
 </head>
 <body>
 <!--Navigation bar-->
@@ -42,9 +68,11 @@
         <div class="form-group">
             <form>
                 <div class="form-group">
-                    <input type="text" class="form-control" id="word" placeholder="Dein Wort" style="margin-top: 1rem">
+                    <input id="wordInput" type="text" class="form-control" placeholder="Dein Wort"
+                           style="margin-top: 1rem">
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%">einreichen</button>
+                <button onclick="putWord();" type="button" class="btn btn-primary" style="width: 100%">einreichen
+                </button>
             </form>
         </div>
     </div>
