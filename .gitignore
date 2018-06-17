@@ -1,3 +1,7 @@
 # IntelliJ project files
 .idea
 *.iml
+
+# Backend Modules and resources
+/backend/nodejs/node_modules
+/backend/nodejs/resources

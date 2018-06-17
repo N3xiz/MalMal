@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 const words = require('./resources/words');
 const highscores = require('./resources/highscores');
 
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
     if (err.type === 'entity.parse.failed') {
         return res.status(400).send(JSON.stringify({
             error: {
@@ -23,21 +23,19 @@ app.use(function(err, req, res, next) {
     }
 });
 
-function sortProperties(obj)
-{
+function sortProperties(obj) {
     // convert object into array
-    var sortable=[];
-    for(var key in obj)
-        if(obj.hasOwnProperty(key))
+    var sortable = [];
+    for (var key in obj)
+        if (obj.hasOwnProperty(key))
             sortable.push([key, obj[key]]); // each item is an array in format [key, value]
 
     // sort items by value
-    sortable.sort(function(b, a)
-    {
-        return a[1]-b[1]; // compare numbers
+    sortable.sort(function (b, a) {
+        return a[1] - b[1]; // compare numbers
     });
 
-    var jsonhighscore = { "highscore" : sortable};
+    var jsonhighscore = {"highscore": sortable};
     return jsonhighscore; // array in format [ [ key1, val1 ], [ key2, val2 ], ... ]
 }
 
