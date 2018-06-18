@@ -11,6 +11,7 @@ app.use(bodyParser.json());
 
 const words = require('./resources/words');
 const highscores = require('./resources/highscores');
+const highscoresSorted = require('./resources/highscores-sorted');
 
 app.use(function (err, req, res, next) {
     if (err.type === 'entity.parse.failed') {
@@ -36,12 +37,13 @@ function sortProperties(obj) {
     });
 
     var jsonhighscore = {"highscore": sortable};
+    highscoresSorted["highscore"] = sortable;
     return jsonhighscore; // array in format [ [ key1, val1 ], [ key2, val2 ], ... ]
 }
 
 
 app.get('/highscore', (req, res) => {
-    res.status(200).json(sortProperties(highscores));
+    res.status(200).json(highscoresSorted);
 });
 
 
@@ -51,7 +53,7 @@ app.post('/highscore', (req, res) => {
     for (let user in newScore) {
         if (Number.isInteger(newScore[user])) {
             if (!(highscores[user] > newScore[user])) highscores[user] = newScore[user];
-            //Sort
+            sortProperties(highscores)
         }
 
         else {
