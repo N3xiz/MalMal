@@ -1,7 +1,8 @@
-const express = require('express');
-const app = express();
-const cors = require('cors');
-const bodyParser = require('body-parser');
+var express = require('express');
+var app = express();
+var cors = require('cors');
+var bodyParser = require('body-parser');
+var io = require('socket.io')(app);
 
 const port = process.env.PORT || '3000';
 app.set('port', port);
@@ -108,3 +109,11 @@ app.put('/add-word', (req, res) => {
 app.listen(port, () => {
     console.log('Listening on port ' + port);
 });
+
+function onConnection(socket){
+    socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+}
+
+io.on('connection', onConnection);
+
+http.listen(port, () => console.log('listening on port ' + port));

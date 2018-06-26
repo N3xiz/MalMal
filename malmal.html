@@ -12,7 +12,6 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"
             integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
             crossorigin="anonymous"></script>
-    <script src="js/site-scripts.js"></script>
 </head>
 <body>
 <!--Navigation bar-->
@@ -64,6 +63,15 @@
             </form>
         </div> <!-- /col-md-4 -->
     </div> <!-- /row -->
+    <div class="row">
+        <div class="colors">
+            <div class="color black"></div>
+            <div class="color red"></div>
+            <div class="color green"></div>
+            <div class="color blue"></div>
+            <div class="color yellow"></div>
+        </div>
+    </div>
 </div>
 <!--site content end-->
 
@@ -72,5 +80,8 @@
         <span class="text-muted">Hier würdest du das Impressum und sowas finden wenn wir sowas bräuchten...</span>
     </div>
 </footer>
+<script src="/nodejs/node_modules/socket.io-client/dist/socket.io.js"></script>
+<script src="/js/client.js"></script>
+<script src="/js/site-scripts.js"></script>
 </body>
 </html>
