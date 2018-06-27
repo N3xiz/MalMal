@@ -1,8 +1,8 @@
-var express = require('express');
-var app = express();
+var app = require('express')();
+var server = app.listen(3000);
+var io = require('socket.io').listen(server);
 var cors = require('cors');
 var bodyParser = require('body-parser');
-var io = require('socket.io')(app);
 
 const port = process.env.PORT || '3000';
 app.set('port', port);
@@ -15,14 +15,7 @@ const highscores = require('./resources/highscores');
 const highscoresSorted = require('./resources/highscores-sorted');
 
 app.use(function (err, req, res, next) {
-    if (err.type === 'entity.parse.failed') {
-        return res.status(400).send(JSON.stringify({
-            error: {
-                code: "INVALID_JSON",
-                message: "The body of your request is not valid JSON."
-            }
-        }))
-    }
+
 });
 
 function sortProperties(obj) {
@@ -106,14 +99,9 @@ app.put('/add-word', (req, res) => {
 /**
  * Start listening
  */
-app.listen(port, () => {
-    console.log('Listening on port ' + port);
-});
 
 function onConnection(socket){
     socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
 }
 
 io.on('connection', onConnection);
-
-http.listen(port, () => console.log('listening on port ' + port));

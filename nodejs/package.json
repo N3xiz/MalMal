@@ -1,6 +1,10 @@
 {
   "name": "MalMal",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "description": "Frontend for MalMal Drawboard Project",
+  "author": "Philipp F., Sascha N.",
+  "license": "ISC",
+  "homepage": "https://github.com/saschanockel/MalMal",
   "dependencies": {
     "socket.io-client": "^2.1.1"
   }

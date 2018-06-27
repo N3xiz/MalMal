@@ -1,10 +1,10 @@
 'use strict';
 
-(function() {
+document.addEventListener("DOMContentLoaded", function() {
 
-    var socket = io('http://backend.exesyst.com');
-    var canvas = document.getElementsByClassName('drawCanvas')[0];
-    var colors = document.getElementsByClassName('color');
+    var socket = io('http://localhost');
+    var canvas = document.getElementsByClassName('whiteboard')[0];
+    var colors = document.getElementsByClassName('colors');
     var context = canvas.getContext('2d');
 
     var current = {
@@ -97,4 +97,4 @@
         canvas.height = window.innerHeight;
     }
 
-})();
+});

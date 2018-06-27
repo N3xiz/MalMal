@@ -1,22 +1,15 @@
 {
   "name": "web-static-backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.1.0",
+  "description": "Backend for MalMal Drawboard Project",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./index.js"
+    "start": "node ./app.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Pathen85/WEB-Static-Backend.git"
-  },
-  "author": "",
+  "author": "Philipp F., Sascha N.",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Pathen85/WEB-Static-Backend/issues"
-  },
-  "homepage": "https://github.com/Pathen85/WEB-Static-Backend#readme",
+  "homepage": "https://github.com/saschanockel/MalMal",
   "dependencies": {
     "cors": "^2.8.4",
     "express": "^4.16.3",

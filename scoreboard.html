@@ -17,7 +17,7 @@
             console.log("Running Code");
 
             // get JSON object from backend
-            $.getJSON("http://backend.exesyst.com/highscore", function (data) {
+            $.getJSON("http://localhost/highscore", function (data) {
                 console.log(data);
                 // for every item in data
                 $.each(data.highscore, function (index, data) {
@@ -26,7 +26,6 @@
                     $('#scoreTable tbody').append('<tr><td>' + (index + 1) + '</td><td>' + data[0] + '</td><td>' + data[1] + '</td></tr>');
 
                 });
-
             });
         });
     </script>
