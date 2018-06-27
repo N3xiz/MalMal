@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    var socket = io('http://localhost');
+    var socket = io('http://localhost:3000');
     var canvas = document.getElementsByClassName('whiteboard')[0];
     var colors = document.getElementsByClassName('colors');
     var context = canvas.getContext('2d');

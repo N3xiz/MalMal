@@ -17,7 +17,7 @@
             console.log("Running Code");
 
             // get JSON object from backend
-            $.getJSON("http://localhost/highscore", function (data) {
+            $.getJSON("http://localhost:3000/highscore", function (data) {
                 console.log(data);
                 // for every item in data
                 $.each(data.highscore, function (index, data) {
