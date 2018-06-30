@@ -41,7 +41,34 @@
     </div>
 </nav>
 <!--end of Navigation bar-->
+<script>
+    $(document).ready(function() {
+        $('#myModal').modal('show');
+    });
+</script>
 
+<div class="container">
+ <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog" style="margin-top: 300px">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="border-width: 0">
+                    <h4 class="modal-title">Gib deinen Usernamen ein!</h4>
+                </div>
+                <div class="modal-body" style="border-width: 0">
+                    <input id="wordInput" type="text" class="form-control" placeholder="Dein Username">
+                </div>
+                <div class="modal-footer" style="border-width: 0">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Absenden</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Abbrechen</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 <!--site content start-->
 <div class="container-fluid site-content" id="malmal-content">
     <div class="row">
