@@ -1,8 +1,16 @@
 var port = process.env.PORT || 3000;
 var express = require('express');
 var app = express();
+var path = require('path');
 var server = app.listen(port, () => console.log('listening on port ' + port));
 var io = require('socket.io').listen(server);
+var fs = require('fs');
+
+// Dir routing
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Chatroom
+var numUsers = 0;
 
 var cors = require('cors');
 var bodyParser = require('body-parser');
@@ -10,9 +18,21 @@ var bodyParser = require('body-parser');
 app.use(cors());
 app.use(bodyParser.json());
 
+createJSONIfNotExist('./resources/words.json');
+createJSONIfNotExist('./resources/highscores.json');
+createJSONIfNotExist('./resources/highscores-sorted.json');
+
 const words = require('./resources/words');
 const highscores = require('./resources/highscores');
 const highscoresSorted = require('./resources/highscores-sorted');
+
+function createJSONIfNotExist(path) {
+    if (!fs.existsSync(path)) {
+        fs.writeFileSync(path, '{}', function (err) {
+            if (err) throw err;
+        });
+    }
+}
 
 function sortProperties(obj) {
     // convert object into array
@@ -22,7 +42,7 @@ function sortProperties(obj) {
             sortable.push([key, obj[key]]); // each item is an array in format [key, value]
 
     // sort items by value
-    sortable.sort(function (b, a) {
+    sortable.sort(function (b, a) {a
         return a[1] - b[1]; // compare numbers
     });
 
@@ -92,8 +112,71 @@ app.put('/add-word', (req, res) => {
     res.status(200).json({message: 'Data has been successfully added'})
 });
 
+/* OLD without chat, only drawing
 function onConnection(socket){
     socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+
 }
 
 io.on('connection', onConnection);
+*/
+
+io.on('connection', (socket) => {
+    var addedUser = false;
+
+    socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+
+    // when the client emits 'new message', this listens and executes
+    socket.on('new message', (data) => {
+        // we tell the client to execute 'new message'
+        socket.broadcast.emit('new message', {
+            username: socket.username,
+            message: data
+        });
+    });
+
+    // when the client emits 'add user', this listens and executes
+    socket.on('add user', (username) => {
+        if (addedUser) return;
+
+        // we store the username in the socket session for this client
+        socket.username = username;
+        ++numUsers;
+        addedUser = true;
+        socket.emit('login', {
+            numUsers: numUsers
+        });
+        // echo globally (all clients) that a person has connected
+        socket.broadcast.emit('user joined', {
+            username: socket.username,
+            numUsers: numUsers
+        });
+    });
+
+    // when the client emits 'typing', we broadcast it to others
+    socket.on('typing', () => {
+        socket.broadcast.emit('typing', {
+            username: socket.username
+        });
+    });
+
+    // when the client emits 'stop typing', we broadcast it to others
+    socket.on('stop typing', () => {
+        socket.broadcast.emit('stop typing', {
+            username: socket.username
+        });
+    });
+
+    // when the user disconnects.. perform this
+    socket.on('disconnect', () => {
+        if (addedUser) {
+            --numUsers;
+
+            // echo globally that this client has left
+            socket.broadcast.emit('user left', {
+                username: socket.username,
+                numUsers: numUsers
+            });
+        }
+    });
+});
