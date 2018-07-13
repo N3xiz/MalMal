@@ -33,7 +33,6 @@ const highscores = require('./resources/highscores');
 const highscoresSorted = require('./resources/highscores-sorted');
 
 
-
 function createJSONIfNotExist(path) {
     if (!fs.existsSync(path)) {
         fs.writeFileSync(path, '{}', function (err) {
@@ -71,19 +70,28 @@ function startGameEngine() {
         gameRunning = true;
         drawingPlayer = playerQueue.shift();
         console.log("Drawing Player: " + drawingPlayer.username);
-        var randomWordsArray = Object.values(words);
-        console.log("Word Array length: " + randomWordsArray.length);
-        var randomWord = randomWordsArray[Math.floor(Math.random() *randomWordsArray.length)];
-        console.log("Random word choosen: " + randomWord);
+
+        var randomWordsArray = Object.values(words);    //Getting words array
+        var randomWord = randomWordsArray[Math.floor(Math.random() * randomWordsArray.length)];  //Choosing random word
+        console.log("Random word choosen: " + randomWord)
+        drawingPlayer.emit('chat_instruction', "Your word is: " + randomWord);
+
+        playerQueue.forEach(function (element) {
+            if (element != drawingPlayer) {
+                element.emit('chat_instruction', "Guess the word!");
+            }
+        });
+
+
     }
 }
-
 
 
 //Stopps game
 function stopGameEngine() {
     console.log("Game Stopped.");
     gameRunning = false;
+    drawingPlayer = null;
     playerQueue.push(drawingPlayer);
 }
 

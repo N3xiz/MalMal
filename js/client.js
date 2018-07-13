@@ -387,4 +387,13 @@ document.addEventListener("DOMContentLoaded", function () {
     socket.on('reconnect_error', () => {
         log('attempt to reconnect has failed');
     });
+
+    socket.on('debug_message', (data) => {
+        log("Debug Message: " + data);
+    });
+
+    socket.on('chat_instruction', (data) => {
+        log(data);
+    });
+
 });
