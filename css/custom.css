@@ -67,6 +67,8 @@ body {
 #drawCanvas {
     border: 1px solid #343a40;
     border-radius: 5px;
+    height: 100%;
+    width: 100%;
 }
 
 #messages {

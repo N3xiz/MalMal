@@ -6,6 +6,12 @@ var server = app.listen(port, () => console.log('listening on port ' + port));
 var io = require('socket.io').listen(server);
 var fs = require('fs');
 
+var playerQueue = [];
+
+
+//Debug console messages
+const DEBUG = true;
+
 // Dir routing
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -26,6 +32,8 @@ const words = require('./resources/words');
 const highscores = require('./resources/highscores');
 const highscoresSorted = require('./resources/highscores-sorted');
 
+
+
 function createJSONIfNotExist(path) {
     if (!fs.existsSync(path)) {
         fs.writeFileSync(path, '{}', function (err) {
@@ -42,13 +50,41 @@ function sortProperties(obj) {
             sortable.push([key, obj[key]]); // each item is an array in format [key, value]
 
     // sort items by value
-    sortable.sort(function (b, a) {a
+    sortable.sort(function (b, a) {
+        //a
         return a[1] - b[1]; // compare numbers
     });
 
     var jsonhighscore = {"highscore": sortable};
     highscoresSorted["highscore"] = sortable;
     return jsonhighscore; // array in format [ [ key1, val1 ], [ key2, val2 ], ... ]
+}
+
+var gameRunning = false;
+var drawingPlayer;
+
+//Running game
+function startGameEngine() {
+    console.log("Trying to start Engine.");
+    if (numUsers >= 2 && !gameRunning) {
+        console.log("Engine started.");
+        gameRunning = true;
+        drawingPlayer = playerQueue.shift();
+        console.log("Drawing Player: " + drawingPlayer.username);
+        var randomWordsArray = Object.values(words);
+        console.log("Word Array length: " + randomWordsArray.length);
+        var randomWord = randomWordsArray[Math.floor(Math.random() *randomWordsArray.length)];
+        console.log("Random word choosen: " + randomWord);
+    }
+}
+
+
+
+//Stopps game
+function stopGameEngine() {
+    console.log("Game Stopped.");
+    gameRunning = false;
+    playerQueue.push(drawingPlayer);
 }
 
 
@@ -63,7 +99,7 @@ app.post('/highscore', (req, res) => {
     for (let user in newScore) {
         if (Number.isInteger(newScore[user])) {
             if (!(highscores[user] > newScore[user])) highscores[user] = newScore[user];
-            sortProperties(highscores)
+            sortProperties(highscores);
         }
 
         else {
@@ -141,6 +177,17 @@ io.on('connection', (socket) => {
 
         // we store the username in the socket session for this client
         socket.username = username;
+
+        //Push User to User Queue
+        playerQueue.push(socket);
+
+        if (DEBUG == true) {
+            console.log("Added to Queue: " + socket.username);
+            playerQueue.forEach(function (element) {
+                console.log(element.username);
+            });
+        }
+
         ++numUsers;
         addedUser = true;
         socket.emit('login', {
@@ -151,6 +198,8 @@ io.on('connection', (socket) => {
             username: socket.username,
             numUsers: numUsers
         });
+
+        startGameEngine(); //Try to start game
     });
 
     // when the client emits 'typing', we broadcast it to others
@@ -170,6 +219,15 @@ io.on('connection', (socket) => {
     // when the user disconnects.. perform this
     socket.on('disconnect', () => {
         if (addedUser) {
+
+            //Remove User from queue
+            playerQueue.splice(playerQueue.indexOf(socket), 1);
+            if (DEBUG == true) {
+                console.log("Removed from Queue: " + socket.username);
+                playerQueue.forEach(function (element) {
+                    console.log(element.username);
+                });
+            }
             --numUsers;
 
             // echo globally that this client has left

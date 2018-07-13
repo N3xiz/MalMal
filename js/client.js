@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Removes the visual chat typing message
     const removeChatTyping = (data) => {
-        getTypingMessages(data).fadeOut(() => {
+        getTypingMessages(data).$fadeOut(() => {
             $(this).remove();
         });
     }
@@ -338,7 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
     socket.on('login', (data) => {
         connected = true;
         // Display the welcome message
-        var message = "Welcome to Socket.IO Chat – ";
+        var message = "Welcome to MalMal!";
         log(message, {
             prepend: true
         });
