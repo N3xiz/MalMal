@@ -8,6 +8,7 @@ var fs = require('fs');
 
 var playerQueue = [];
 
+const ROUNDTIME = 60; //60 seconds per round
 
 //Debug console messages
 const DEBUG = true;
@@ -77,24 +78,44 @@ function startGameEngine() {
         drawingPlayer.emit('chat_instruction', "Your word is: " + randomWord);
 
         playerQueue.forEach(function (element) {
-            if (element != drawingPlayer) {
-                element.emit('chat_instruction', "Guess the word!");
-            }
+            element.emit('chat_instruction', "Guess the word!");
         });
 
-
+        initializeCountdown();
+    }else{
+        console.log("Not enough Players or game already running!");
     }
-}
 
+}
 
 //Stopps game
 function stopGameEngine() {
     console.log("Game Stopped.");
     gameRunning = false;
-    drawingPlayer = null;
+    playerQueue.forEach(function (element) {
+        element.emit('chat_instruction', "Round over! " + drawingPlayer.username + " earned POINTS points.");
+    });
+    drawingPlayer.emit('chat_instruction', "Round over! You've earned POINTS points.");
     playerQueue.push(drawingPlayer);
+    drawingPlayer = null;
 }
 
+function initializeCountdown() {
+    var timeremaining = ROUNDTIME;
+    var roundTimer = setInterval(function () {
+        timeremaining -= 1;
+        if (timeremaining < 0) {
+            clearInterval(roundTimer);
+            stopGameEngine();
+        } else {
+            playerQueue.forEach(function (element) {
+                element.emit('chat_instruction', "Countdown: " + timeremaining);
+            });
+            drawingPlayer.emit('chat_instruction', "Countdown: " + timeremaining);
+            console.log("Countdown: " + timeremaining);
+        }
+    }, 1000);
+}
 
 app.get('/highscore', (req, res) => {
     res.status(200).json(highscoresSorted);
