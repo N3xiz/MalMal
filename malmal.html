@@ -42,12 +42,11 @@
 </nav>
 <!--end of Navigation bar-->
 
+<!-- Modal start -->
 <div class="container">
-    <!-- Modal -->
     <div class="modal fade" id="usernameModal" role="dialog" data-keyboard="false" tabindex="-1" data-backdrop="static"
-         style="margin-top: 300px">
+         style="margin-top: 20vh">
         <div class="modal-dialog">
-            <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header" style="border-width: 0">
                     <h4 class="modal-title">Bitte gib deinen Usernamen ein.</h4>
@@ -63,6 +62,8 @@
         </div>
     </div>
 </div>
+<!-- Modal end -->
+
 <!--site content start-->
 <div class="container-fluid site-content" id="malmal-content">
     <div class="row">
@@ -70,30 +71,33 @@
             <canvas id="drawCanvas" class="whiteboard">
                 Sorry, your browser doesn't support the &lt;canvas&gt; element.
             </canvas>
-
-        </div> <!-- /col-md-4 -->
-        <div class="col-md-4 form-text">
-            <div class="row" style="height: 70vh">
-                <div class="col" style="margin-bottom: 5px; margin-top: -4px">
-                    <ul class="scrollbar scrollbar-primary" id="messages"></ul>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="Deine Nachricht" id="inputMessage">
-                </div>
-            </div>
-        </div> <!-- /col-md-4 -->
-    </div> <!-- /row -->
+        </div>
+        <div class="col-md-4">
+            <ul class="scrollbar scrollbar-primary" id="messages"></ul>
+        </div>
+    </div>
     <div class="row">
-        <div class="col-md-12">
-            <div class="colors">
-                <div class="color black"></div>
-                <div class="color red"></div>
-                <div class="color green"></div>
-                <div class="color blue"></div>
-                <div class="color yellow"></div>
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="colors">
+                        <div class="color black"></div>
+                        <div class="color red"></div>
+                        <div class="color green"></div>
+                        <div class="color blue"></div>
+                        <div class="color yellow"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="gameTimer" readonly>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="currentWord" readonly>
+                </div>
             </div>
+        </div>
+        <div class="col-md-4">
+            <input type="text" class="form-control" placeholder="Deine Nachricht" id="inputMessage">
         </div>
     </div>
 </div>
