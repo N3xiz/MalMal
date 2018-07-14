@@ -11,6 +11,8 @@ var playerQueue = [];
 var regxp;
 var randomWord;
 const ROUNDTIME = 60; //60 seconds per round
+var roundTimer;
+var timeremaining;
 
 //Debug console messages
 const DEBUG = true;
@@ -80,7 +82,7 @@ function startGameEngine() {
         //Create RegExp for finding the word in the chat
         regxp = new RegExp("\\b" + randomWord + "\\b");
 
-        console.log("Random word choosen: " + randomWord)
+        console.log("Random word choosen: " + randomWord);
 
         //Getting the word to the Drawer and unlocking canvas
         drawingPlayer.emit('canvas_unlock', true);
@@ -100,24 +102,28 @@ function startGameEngine() {
 function stopGameEngine(correctGuessPlayer) {
     console.log("Game Stopped.");
     if (correctGuessPlayer != null) {
+        var points = timeremaining;
         playerQueue.forEach(function (element) {
-            element.emit('chat_instruction', "Round over! " + drawingPlayer.username + " earned POINTS points.");
+            element.emit('chat_instruction', "Round over! " + drawingPlayer.username + " earned " + points + " points.");
             element.emit('chat_instruction', correctGuessPlayer.username + " Guessed the word: " + randomWord + " correctly\n" +
-                "and earned POINTS points.");
+                "and earned " + points + " points.");
         });
-        drawingPlayer.emit('chat_instruction', "Round over! You've earned POINTS points.");
+        drawingPlayer.emit('chat_instruction', "Round over! You've earned " + points + " points.");
         drawingPlayer.emit('chat_instruction', correctGuessPlayer.username + " Guessed the word: " + randomWord + " correctly\n" +
-            "and earned POINTS points.");
+            "and earned " + points + " points.");
     } else {
         playerQueue.forEach(function (element) {
-            element.emit('chat_instruction', "No one guessed the word. Nobody earns points.");
+            element.emit('chat_instruction', "No one guessed the word " + randomWord + " Nobody earns points.");
         });
-        drawingPlayer.emit('chat_instruction', "No one guessed the word. Nobody earns points.");
+        drawingPlayer.emit('chat_instruction', "No one guessed the word " + randomWord + " Nobody earns points.");
     }
 
-    playerQueue.push(drawingPlayer);
+    if (drawingPlayer != null) {
+        playerQueue.push(drawingPlayer);
+    }
     drawingPlayer = null;
     gameRunning = false;
+    clearInterval(roundTimer);
 
     //Resetting Instruction box, timer and locking canvas.
     playerQueue.forEach(function (element) {
@@ -126,6 +132,10 @@ function stopGameEngine(correctGuessPlayer) {
         element.emit('canvas_unlock', false);
         element.emit('canvas_clear');
     });
+
+    if (numUsers >= 2) {
+        startGameEngine();
+    }
 }
 
 function checkWord(player, data) {
@@ -135,8 +145,8 @@ function checkWord(player, data) {
 }
 
 function initializeCountdown() {
-    var timeremaining = ROUNDTIME;
-    var roundTimer = setInterval(function () {
+    timeremaining = ROUNDTIME;
+    roundTimer = setInterval(function () {
         timeremaining -= 1;
         if (gameRunning) {
             if (timeremaining < -1) {
@@ -292,16 +302,23 @@ io.on('connection', (socket) => {
     // when the user disconnects.. perform this
     socket.on('disconnect', () => {
         if (addedUser) {
-
-            //Remove User from queue
-            playerQueue.splice(playerQueue.indexOf(socket), 1);
-            if (DEBUG == true) {
-                console.log("Removed from Queue: " + socket.username);
-                playerQueue.forEach(function (element) {
-                    console.log(element.username);
-                });
-            }
             --numUsers;
+            //Remove User from queue and stop if its the drawer
+            if (socket === drawingPlayer) {
+                console.log("Drawer disconnected!");
+                playerQueue.forEach(function (element) {
+                    element.emit('chat_instruction', "The drawer disconnected.");
+                });
+                stopGameEngine();
+            } else {
+                playerQueue.splice(playerQueue.indexOf(socket), 1);
+                if (DEBUG == true) {
+                    console.log("Removed from Queue: " + socket.username);
+                    playerQueue.forEach(function (element) {
+                        console.log(element.username);
+                    });
+                }
+            }
 
             // echo globally that this client has left
             socket.broadcast.emit('user left', {
