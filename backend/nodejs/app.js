@@ -80,7 +80,7 @@ function startGameEngine() {
         randomWord = randomWordsArray[Math.floor(Math.random() * randomWordsArray.length)];  //Choosing random word
 
         //Create RegExp for finding the word in the chat
-        regxp = new RegExp("\\b" + randomWord + "\\b");
+        regxp = new RegExp("\\b" + randomWord + "\\b", "i"); //search for standalone word, case-insensitive
 
         console.log("Random word choosen: " + randomWord);
 
@@ -111,6 +111,28 @@ function stopGameEngine(correctGuessPlayer) {
         drawingPlayer.emit('chat_instruction', "Round over! You've earned " + points + " points.");
         drawingPlayer.emit('chat_instruction', correctGuessPlayer.username + " Guessed the word: " + randomWord + " correctly\n" +
             "and earned " + points + " points.");
+
+        if (highscores.hasOwnProperty(correctGuessPlayer.username)) {
+            highscores[correctGuessPlayer.username] = highscores[correctGuessPlayer.username] + points;
+        } else {
+            highscores[correctGuessPlayer.username] = points;
+        }
+
+        if (highscores.hasOwnProperty(drawingPlayer.username)) {
+            highscores[drawingPlayer.username] = highscores[drawingPlayer.username] + points;
+        } else {
+            highscores[drawingPlayer.username] = points;
+        }
+
+        sortProperties(highscores);
+
+        fs.writeFileSync('./resources/highscores.json', JSON.stringify(highscores), function (err) {
+            if (err) throw err;
+        });
+
+        fs.writeFileSync('./resources/highscores-sorted.json', JSON.stringify(highscoresSorted), function (err) {
+            if (err) throw err;
+        });
     } else {
         playerQueue.forEach(function (element) {
             element.emit('chat_instruction', "No one guessed the word " + randomWord + " Nobody earns points.");
@@ -186,6 +208,13 @@ app.post('/highscore', (req, res) => {
 
     }
 
+    fs.writeFileSync('./resources/highscores.json', JSON.stringify(highscores), function (err) {
+        if (err) throw err;
+    });
+
+    fs.writeFileSync('./resources/highscores-sorted.json', JSON.stringify(highscoresSorted), function (err) {
+        if (err) throw err;
+    });
 
     res.status(200).json({message: 'Data has been successfully added'});
 });
