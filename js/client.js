@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener('resize', onResize, false);
     onResize();
 
+    var allowedToDraw = false;
 
     function drawLine(x0, y0, x1, y1, color, emit) {
         context.beginPath();
@@ -56,7 +57,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function onMouseDown(e) {
-        drawing = true;
+        if(allowedToDraw){
+            drawing = true;
+        } else{
+            drawing = false;
+        }
+
         current.x = e.clientX - canvasRect.left;
         current.y = e.clientY - canvasRect.top;
     }
@@ -386,6 +392,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     socket.on('reconnect_error', () => {
         log('attempt to reconnect has failed');
+    })
+
+    socket.on('canvas_unlock', (data) => {
+        if(data == true){
+            allowedToDraw = true;
+        }else{
+            allowedToDraw = false;
+        }
+    });
+
+    socket.on('canvas_clear', () => {
+        context.clearRect(0, 0, canvas.width, canvas.height);
     });
 
     socket.on('debug_message', (data) => {
@@ -401,9 +419,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     socket.on('timer', (data) => {
-        if(parseInt(data) < 0){
+        if (parseInt(data) < 0) {
             $('#gameTimer').val("");
-        }else{
+        } else {
             $('#gameTimer').val("Countdown: " + data);
         }
     });

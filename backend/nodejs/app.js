@@ -82,7 +82,8 @@ function startGameEngine() {
 
         console.log("Random word choosen: " + randomWord)
 
-        //Getting the word to the Drawer
+        //Getting the word to the Drawer and unlocking canvas
+        drawingPlayer.emit('canvas_unlock', true);
         drawingPlayer.emit('instruction_box', "Draw the word: " + randomWord);
         playerQueue.forEach(function (element) {
             element.emit('instruction_box', "Guess the word!");
@@ -100,34 +101,35 @@ function stopGameEngine(correctGuessPlayer) {
     console.log("Game Stopped.");
     if (correctGuessPlayer != null) {
         playerQueue.forEach(function (element) {
-            element.emit('instruction_box', "Round over.");
-            element.emit('timer', -1);
             element.emit('chat_instruction', "Round over! " + drawingPlayer.username + " earned POINTS points.");
             element.emit('chat_instruction', correctGuessPlayer.username + " Guessed the word: " + randomWord + " correctly\n" +
                 "and earned POINTS points.");
         });
-        drawingPlayer.emit('instruction_box', "Round over.");
-        drawingPlayer.emit('timer', -1);
         drawingPlayer.emit('chat_instruction', "Round over! You've earned POINTS points.");
         drawingPlayer.emit('chat_instruction', correctGuessPlayer.username + " Guessed the word: " + randomWord + " correctly\n" +
             "and earned POINTS points.");
     } else {
         playerQueue.forEach(function (element) {
-            element.emit('instruction_box', "Round over.");
-            element.emit('timer', -1);
             element.emit('chat_instruction', "No one guessed the word. Nobody earns points.");
         });
-        drawingPlayer.emit('instruction_box', "Round over.");
-        drawingPlayer.emit('timer', -1);
         drawingPlayer.emit('chat_instruction', "No one guessed the word. Nobody earns points.");
     }
+
     playerQueue.push(drawingPlayer);
     drawingPlayer = null;
     gameRunning = false;
+
+    //Resetting Instruction box, timer and locking canvas.
+    playerQueue.forEach(function (element) {
+        element.emit('instruction_box', "Round over.");
+        element.emit('timer', -1);
+        element.emit('canvas_unlock', false);
+        element.emit('canvas_clear');
+    });
 }
 
 function checkWord(player, data) {
-    if (regxp.test(data)) {
+    if (regxp.test(data) && !(player === drawingPlayer)) {
         stopGameEngine(player);
     }
 }
