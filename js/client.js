@@ -396,4 +396,16 @@ document.addEventListener("DOMContentLoaded", function () {
         log(data);
     });
 
+    socket.on('instruction_box', (data) => {
+        $('#instructionBox').val(data);
+    });
+
+    socket.on('timer', (data) => {
+        if(parseInt(data) < 0){
+            $('#gameTimer').val("");
+        }else{
+            $('#gameTimer').val("Countdown: " + data);
+        }
+    });
+
 });

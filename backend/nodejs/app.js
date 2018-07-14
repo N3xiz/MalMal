@@ -6,8 +6,10 @@ var server = app.listen(port, () => console.log('listening on port ' + port));
 var io = require('socket.io').listen(server);
 var fs = require('fs');
 
+//Game Vards
 var playerQueue = [];
-
+var regxp;
+var randomWord;
 const ROUNDTIME = 60; //60 seconds per round
 
 //Debug console messages
@@ -73,46 +75,80 @@ function startGameEngine() {
         console.log("Drawing Player: " + drawingPlayer.username);
 
         var randomWordsArray = Object.values(words);    //Getting words array
-        var randomWord = randomWordsArray[Math.floor(Math.random() * randomWordsArray.length)];  //Choosing random word
-        console.log("Random word choosen: " + randomWord)
-        drawingPlayer.emit('chat_instruction', "Your word is: " + randomWord);
+        randomWord = randomWordsArray[Math.floor(Math.random() * randomWordsArray.length)];  //Choosing random word
 
+        //Create RegExp for finding the word in the chat
+        regxp = new RegExp("\\b" + randomWord + "\\b");
+
+        console.log("Random word choosen: " + randomWord)
+
+        //Getting the word to the Drawer
+        drawingPlayer.emit('instruction_box', "Draw the word: " + randomWord);
         playerQueue.forEach(function (element) {
-            element.emit('chat_instruction', "Guess the word!");
+            element.emit('instruction_box', "Guess the word!");
         });
 
         initializeCountdown();
-    }else{
+    } else {
         console.log("Not enough Players or game already running!");
     }
 
 }
 
 //Stopps game
-function stopGameEngine() {
+function stopGameEngine(correctGuessPlayer) {
     console.log("Game Stopped.");
-    gameRunning = false;
-    playerQueue.forEach(function (element) {
-        element.emit('chat_instruction', "Round over! " + drawingPlayer.username + " earned POINTS points.");
-    });
-    drawingPlayer.emit('chat_instruction', "Round over! You've earned POINTS points.");
+    if (correctGuessPlayer != null) {
+        playerQueue.forEach(function (element) {
+            element.emit('instruction_box', "Round over.");
+            element.emit('timer', -1);
+            element.emit('chat_instruction', "Round over! " + drawingPlayer.username + " earned POINTS points.");
+            element.emit('chat_instruction', correctGuessPlayer.username + " Guessed the word: " + randomWord + " correctly\n" +
+                "and earned POINTS points.");
+        });
+        drawingPlayer.emit('instruction_box', "Round over.");
+        drawingPlayer.emit('timer', -1);
+        drawingPlayer.emit('chat_instruction', "Round over! You've earned POINTS points.");
+        drawingPlayer.emit('chat_instruction', correctGuessPlayer.username + " Guessed the word: " + randomWord + " correctly\n" +
+            "and earned POINTS points.");
+    } else {
+        playerQueue.forEach(function (element) {
+            element.emit('instruction_box', "Round over.");
+            element.emit('timer', -1);
+            element.emit('chat_instruction', "No one guessed the word. Nobody earns points.");
+        });
+        drawingPlayer.emit('instruction_box', "Round over.");
+        drawingPlayer.emit('timer', -1);
+        drawingPlayer.emit('chat_instruction', "No one guessed the word. Nobody earns points.");
+    }
     playerQueue.push(drawingPlayer);
     drawingPlayer = null;
+    gameRunning = false;
+}
+
+function checkWord(player, data) {
+    if (regxp.test(data)) {
+        stopGameEngine(player);
+    }
 }
 
 function initializeCountdown() {
     var timeremaining = ROUNDTIME;
     var roundTimer = setInterval(function () {
         timeremaining -= 1;
-        if (timeremaining < 0) {
-            clearInterval(roundTimer);
-            stopGameEngine();
+        if (gameRunning) {
+            if (timeremaining < -1) {
+                clearInterval(roundTimer);
+                stopGameEngine();
+            } else {
+                playerQueue.forEach(function (element) {
+                    element.emit('timer', timeremaining);
+                });
+                drawingPlayer.emit('timer', timeremaining);
+                console.log("Countdown: " + timeremaining);
+            }
         } else {
-            playerQueue.forEach(function (element) {
-                element.emit('chat_instruction', "Countdown: " + timeremaining);
-            });
-            drawingPlayer.emit('chat_instruction', "Countdown: " + timeremaining);
-            console.log("Countdown: " + timeremaining);
+            clearInterval(roundTimer);
         }
     }, 1000);
 }
@@ -193,11 +229,17 @@ io.on('connection', (socket) => {
 
     // when the client emits 'new message', this listens and executes
     socket.on('new message', (data) => {
+
         // we tell the client to execute 'new message'
         socket.broadcast.emit('new message', {
             username: socket.username,
             message: data
         });
+
+        //Check chat for correct word
+        if (gameRunning) {
+            checkWord(socket, data);
+        }
     });
 
     // when the client emits 'add user', this listens and executes
