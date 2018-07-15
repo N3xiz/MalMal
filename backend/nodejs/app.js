@@ -60,8 +60,7 @@ function sortProperties(obj) {
         return a[1] - b[1]; // compare numbers
     });
 
-    var jsonhighscore = {"highscore": sortable};
-    return jsonhighscore; // array in format [ [ key1, val1 ], [ key2, val2 ], ... ]
+    return {"highscore": sortable}; // array in format [ [ key1, val1 ], [ key2, val2 ], ... ]
 }
 
 var gameRunning = false;
@@ -82,7 +81,7 @@ function startGameEngine() {
         //Create RegExp for finding the word in the chat
         regxp = new RegExp("\\b" + randomWord + "\\b", "i"); //search for standalone word, case-insensitive
 
-        console.log("Random word choosen: " + randomWord);
+        console.log("Random word chosen: " + randomWord);
 
         //Getting the word to the Drawer and unlocking canvas
         drawingPlayer.emit('canvas_unlock', true);
@@ -149,7 +148,7 @@ function stopGameEngine(correctGuessPlayer) {
 
 
     //Resetting Instruction box, timer and locking canvas.
-    currentPublicInstruction = "Round over."
+    currentPublicInstruction = "Round over.";
     playerQueue.forEach(function (element) {
         element.emit('instruction_box', currentPublicInstruction);
         element.emit('timer', -1);

@@ -205,8 +205,15 @@ document.addEventListener("DOMContentLoaded", function () {
             $typingMessages.remove();
         }
 
+        var formattedUsername;
+        if (options.typingMessage) {
+            formattedUsername = data.username + ' ';
+        } else {
+            formattedUsername = data.username + ': ';
+        }
+
         var $usernameDiv = $('<span class="username"/>')
-            .text(data.username + ': ')
+            .text(formattedUsername)
             .css('color', getUsernameColor(data.username));
 
         var $messageBodyDiv = $('<span class="messageBody">')
@@ -225,22 +232,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const addChatTyping = (data) => {
         data.typing = true;
         data.message = 'is typing';
-        addChatMessage(data);
+        addChatMessage(data, {'typingMessage': true});
     }
 
     // Removes the visual chat typing message
     const removeChatTyping = (data) => {
-        console.log("removeChatTyping called.");
-        getTypingMessages(data).fadeOut(function () {
-            $(this).remove();
-        });
-        /*
         getTypingMessages(data).fadeOut(() => {
-            console.log("Fadeout callback.");
             $(this).remove();
-            console.log("Removed!");
         });
-        */
     }
 
     // Adds a message element to the messages and scrolls to the bottom
@@ -301,8 +300,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Gets the 'X is typing' messages of a user
     const getTypingMessages = (data) => {
-        return $('.typing.message').filter(i => {
-            return $(this).data('username') === data.username;
+        return $('.typing.message').filter((i, element) => {
+            return $(element).data('username') === data.username;
         });
     }
 
