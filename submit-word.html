@@ -12,44 +12,6 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"
             integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
             crossorigin="anonymous"></script>
-    <script>
-        $(function () { // short for $(document).ready
-            console.log("Running Code");
-        });
-
-        function putWord() {
-            var wordInput = $("#wordInput").val();
-            var payload = "[\"" + wordInput + "\"]";
-            console.log(payload);
-            if (/^[a-zA-Z0-9]+$/.test(wordInput)) {
-                $.ajax({
-                    contentType: 'application/json',
-                    data: payload,
-                    dataType: 'json',
-                    success: function (result) {
-                        console.log("word input succeeded: " + JSON.stringify(result));
-                    },
-                    error: function (result) {
-                        console.log("Word submit error: " + JSON.stringify(result));
-                    },
-                    processData: false,
-                    type: 'PUT',
-                    url: 'http://localhost:3000/add-word'
-                });
-                $("#wordInput").val(""); // clear
-            } else {
-                alert("Invalid Word! No whitespaces or symbols are allowed.")
-            }
-        };
-
-        // Keyboard events
-        $(document).ready(function () {
-            $('#wordInput').keypress(function (e) {
-                if (e.keyCode == 13)
-                    putWord();
-            });
-        });
-    </script>
 </head>
 <body>
 <!--Navigation bar-->
@@ -100,5 +62,42 @@
         <span class="text-muted">Hier würdest du das Impressum und sowas finden wenn wir sowas bräuchten...</span>
     </div>
 </footer>
+
+<script>
+    // Submitting of word
+    function putWord() {
+        var wordInput = $("#wordInput").val(); // Content of wordInput box
+        var payload = "[\"" + wordInput + "\"]"; // Formatting of payload
+        console.log(payload); // logging word payload to console
+
+        // Testing on valid word (done in frontend for user error avoidance)
+        if (/^[a-zA-Z0-9]+$/.test(wordInput)) {
+            $.ajax({
+                contentType: 'application/json',
+                data: payload,
+                dataType: 'json',
+                success: function (result) {
+                    console.log("word input succeeded: " + JSON.stringify(result));
+                },
+                error: function (result) {
+                    console.log("Word submit error: " + JSON.stringify(result));
+                },
+                processData: false,
+                type: 'PUT',
+                url: 'http://localhost:3000/add-word'
+            });
+            $("#wordInput").val(""); // clear field
+        } else {
+            alert("Invalid Word! No whitespaces or symbols are allowed.")
+        }
+    };
+    // Keyboard events
+    $(document).ready(function () {
+        $('#wordInput').keypress(function (e) {
+            if (e.keyCode == 13) // 13 is Enter
+                putWord();
+        });
+    });
+</script>
 </body>
 </html>

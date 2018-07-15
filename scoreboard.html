@@ -12,23 +12,6 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"
             integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
             crossorigin="anonymous"></script>
-    <script>
-        $(function () { // short for $(document).ready
-            console.log("Running Code");
-
-            // get JSON object from backend
-            $.getJSON("http://localhost:3000/highscore", function (data) {
-                console.log(data);
-                // for every item in data
-                $.each(data.highscore, function (index, data) {
-
-                    // append item to tbody of scoreTable
-                    $('#scoreTable tbody').append('<tr><td>' + (index + 1) + '</td><td>' + data[0] + '</td><td>' + data[1] + '</td></tr>');
-
-                });
-            });
-        });
-    </script>
 </head>
 <body>
 <!--Navigation bar-->
@@ -57,9 +40,6 @@
 </nav>
 <!--end of Navigation bar-->
 
-<!--DEBUG BOX-->
-
-
 <!--site content start-->
 <div class="container-fluid site-content" style="max-width: 80%;">
     <table id="scoreTable" class="table table-sm table-bordered table-hover">
@@ -84,5 +64,18 @@
     </div>
 </footer>
 
+<script>
+    $(function () { // short for $(document).ready
+        // get JSON object from backend
+        $.getJSON("http://localhost:3000/highscore", function (data) {
+            console.log(data);
+            // for every item in data
+            $.each(data.highscore, function (index, data) {
+                // append item to tbody of scoreTable
+                $('#scoreTable tbody').append('<tr><td>' + (index + 1) + '</td><td>' + data[0] + '</td><td>' + data[1] + '</td></tr>');
+            });
+        });
+    });
+</script>
 </body>
 </html>

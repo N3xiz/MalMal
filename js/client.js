@@ -2,35 +2,42 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    //Draw Canvas
-
+    // Object handles
     var socket = io('http://localhost:3000');
     var canvas = document.getElementsByClassName('whiteboard')[0];
     var colors = document.getElementsByClassName('colors');
     var context = canvas.getContext('2d');
     var canvasRect = canvas.getBoundingClientRect();
 
+    // Current color, default = black
     var current = {
         color: 'black'
     };
+
+    // Is currently drawing?
     var drawing = false;
 
+    // Mouse listerners
     canvas.addEventListener('mousedown', onMouseDown, false);
     canvas.addEventListener('mouseup', onMouseUp, false);
     canvas.addEventListener('mouseout', onMouseUp, false);
     canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
 
+    // Color picker boxes
     for (var i = 0; i < colors.length; i++) {
         colors[i].addEventListener('click', onColorUpdate, false);
     }
 
+    // Drawing event
     socket.on('drawing', onDrawingEvent);
 
+    // Resize event
     window.addEventListener('resize', onResize, false);
     onResize();
 
-    var allowedToDraw = false;
+    var allowedToDraw = false; // Canvas unlocked?
 
+    // Canvas draw handling
     function drawLine(x0, y0, x1, y1, color, emit) {
         context.beginPath();
         context.moveTo(x0, y0);
@@ -47,6 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var w = canvas.width;
         var h = canvas.height;
 
+        // Draw socket
         socket.emit('drawing', {
             x0: x0 / w,
             y0: y0 / h,
@@ -56,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // ---Mouse movements for drawing---
     function onMouseDown(e) {
         if (allowedToDraw) {
             drawing = true;
@@ -84,6 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
         current.y = e.clientY - canvasRect.top;
     }
 
+    // Color picker
     function onColorUpdate(e) {
         current.color = e.target.className.split(' ')[1];
     }
@@ -101,22 +111,25 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
+    // Drawing event wrap
     function onDrawingEvent(data) {
         var w = canvas.width;
         var h = canvas.height;
         drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
     }
 
-    // make the canvas fill its parent
+    // Canvas resize handling
     function onResize() {
         canvasRect = canvas.getBoundingClientRect();
         canvas.width = $('#canvasParent').width();
         canvas.height = $('#canvasParent').height();
+        // Get canvas data from backend
         socket.emit('get_canvas');
     }
 
-    //Chat
+    // ---Chat---
 
+    // Chat variables
     var FADE_TIME = 150; // ms
     var TYPING_TIMER_LENGTH = 400; // ms
     var COLORS = [
@@ -138,6 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var lastTypingTime;
     var $currentInput = $('#usernameInput').focus();
 
+    // Participants message in chat
     const addParticipantsMessage = (data) => {
         var message = '';
         if (data.numUsers === 1) {
@@ -148,6 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
         log(message);
     }
 
+    // Modal handling and username regex and set
     $('#usernameModal').on('hide.bs.modal', function (e) {
         if (!/^[a-zA-Z0-9]+$/.test($('#usernameInput').val())) {
             e.preventDefault();
@@ -305,7 +320,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Gets the color of a username through our hash function
+    // Gets the color of a username through hash function
     const getUsernameColor = (username) => {
         // Compute hash code
         var hash = 7;
@@ -318,7 +333,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Keyboard events
-
     $window.keydown(event => {
         // Auto-focus the current input when a key is typed
         if (!(event.ctrlKey || event.metaKey || event.altKey)) {
@@ -336,6 +350,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // Message input handling
     $inputMessage.on('input', () => {
         updateTyping();
     });
@@ -346,7 +361,7 @@ document.addEventListener("DOMContentLoaded", function () {
         $inputMessage.focus();
     });
 
-    // Socket events
+    // ---Sockets---
 
     // Whenever the server emits 'login', log the login message
     socket.on('login', (data) => {
@@ -387,10 +402,12 @@ document.addEventListener("DOMContentLoaded", function () {
         removeChatTyping(data);
     });
 
+    // User disconnect message
     socket.on('disconnect', () => {
         log('you have been disconnected');
     });
 
+    // User reconnect handling
     socket.on('reconnect', () => {
         log('you have been reconnected');
         if (username) {
@@ -398,34 +415,41 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // User reconnect error message
     socket.on('reconnect_error', () => {
         log('attempt to reconnect has failed');
     })
 
+    // Unlocking and locking the canvas
     socket.on('canvas_unlock', (data) => {
-        if (data == true) {
+        if (data === true) {
             allowedToDraw = true;
         } else {
             allowedToDraw = false;
         }
     });
 
+    // Clearing the canvas
     socket.on('canvas_clear', () => {
         context.clearRect(0, 0, canvas.width, canvas.height);
     });
 
+    // Debug capability
     socket.on('debug_message', (data) => {
         log("Debug Message: " + data);
     });
 
+    // Chat instruction
     socket.on('chat_instruction', (data) => {
         log(data);
     });
 
+    // Instruction box (under canvas)
     socket.on('instruction_box', (data) => {
         $('#instructionBox').val(data);
     });
 
+    // Timer data
     socket.on('timer', (data) => {
         if (parseInt(data) < 0) {
             $('#gameTimer').val("");
