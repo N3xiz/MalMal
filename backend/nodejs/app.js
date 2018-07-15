@@ -14,6 +14,7 @@ var randomWord;
 const ROUNDTIME = 60; //60 seconds per round
 var roundTimer;
 var timeremaining;
+var currentPublicInstruction = "";
 
 //Debug console messages
 const DEBUG = true;
@@ -32,11 +33,10 @@ app.use(bodyParser.json());
 
 createJSONIfNotExist('./resources/words.json');
 createJSONIfNotExist('./resources/highscores.json');
-createJSONIfNotExist('./resources/highscores-sorted.json');
 
-const words = require('./resources/words');
-const highscores = require('./resources/highscores');
-const highscoresSorted = require('./resources/highscores-sorted');
+var words = require('./resources/words');
+var highscores = require('./resources/highscores');
+var highscoresSorted = sortProperties(highscores);
 
 
 function createJSONIfNotExist(path) {
@@ -61,7 +61,6 @@ function sortProperties(obj) {
     });
 
     var jsonhighscore = {"highscore": sortable};
-    highscoresSorted["highscore"] = sortable;
     return jsonhighscore; // array in format [ [ key1, val1 ], [ key2, val2 ], ... ]
 }
 
@@ -87,9 +86,10 @@ function startGameEngine() {
 
         //Getting the word to the Drawer and unlocking canvas
         drawingPlayer.emit('canvas_unlock', true);
+        currentPublicInstruction = "Guess the word!";
         drawingPlayer.emit('instruction_box', "Draw the word: " + randomWord);
         playerQueue.forEach(function (element) {
-            element.emit('instruction_box', "Guess the word!");
+            element.emit('instruction_box', currentPublicInstruction);
         });
 
         initializeCountdown();
@@ -125,20 +125,18 @@ function stopGameEngine(correctGuessPlayer) {
             highscores[drawingPlayer.username] = points;
         }
 
-        sortProperties(highscores);
+        highscoresSorted = sortProperties(highscores);
 
         fs.writeFileSync('./resources/highscores.json', JSON.stringify(highscores), function (err) {
-            if (err) throw err;
-        });
-
-        fs.writeFileSync('./resources/highscores-sorted.json', JSON.stringify(highscoresSorted), function (err) {
             if (err) throw err;
         });
     } else {
         playerQueue.forEach(function (element) {
             element.emit('chat_instruction', "No one guessed the word " + randomWord + " Nobody earns points.");
         });
-        drawingPlayer.emit('chat_instruction', "No one guessed the word " + randomWord + " Nobody earns points.");
+        if(drawingPlayer != null){
+            drawingPlayer.emit('chat_instruction', "No one guessed the word " + randomWord + " Nobody earns points.");
+        }
     }
 
     if (drawingPlayer != null) {
@@ -151,8 +149,9 @@ function stopGameEngine(correctGuessPlayer) {
 
 
     //Resetting Instruction box, timer and locking canvas.
+    currentPublicInstruction = "Round over."
     playerQueue.forEach(function (element) {
-        element.emit('instruction_box', "Round over.");
+        element.emit('instruction_box', currentPublicInstruction);
         element.emit('timer', -1);
         element.emit('canvas_unlock', false);
         element.emit('canvas_clear');
@@ -207,7 +206,7 @@ app.post('/highscore', (req, res) => {
     for (let user in newScore) {
         if (Number.isInteger(newScore[user])) {
             if (!(highscores[user] > newScore[user])) highscores[user] = newScore[user];
-            sortProperties(highscores);
+            highscoresSorted = sortProperties(highscores);
         }
 
         else {
@@ -218,10 +217,6 @@ app.post('/highscore', (req, res) => {
     }
 
     fs.writeFileSync('./resources/highscores.json', JSON.stringify(highscores), function (err) {
-        if (err) throw err;
-    });
-
-    fs.writeFileSync('./resources/highscores-sorted.json', JSON.stringify(highscoresSorted), function (err) {
         if (err) throw err;
     });
 
@@ -333,6 +328,7 @@ io.on('connection', (socket) => {
         startGameEngine(); //Try to start game
 
         sendCanvasData(socket);
+        socket.emit('instruction_box', currentPublicInstruction);
     });
 
     // when the client emits 'typing', we broadcast it to others
@@ -354,6 +350,7 @@ io.on('connection', (socket) => {
         sendCanvasData(socket);
     });
 
+
     // when the user disconnects.. perform this
     socket.on('disconnect', () => {
         if (addedUser) {
@@ -364,6 +361,7 @@ io.on('connection', (socket) => {
                 playerQueue.forEach(function (element) {
                     element.emit('chat_instruction', "The drawer disconnected.");
                 });
+                drawingPlayer = null;
                 stopGameEngine();
             } else {
                 playerQueue.splice(playerQueue.indexOf(socket), 1);
