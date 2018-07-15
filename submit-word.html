@@ -12,33 +12,43 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"
             integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
             crossorigin="anonymous"></script>
-    <script src="config.js"></script>
     <script>
         $(function () { // short for $(document).ready
             console.log("Running Code");
         });
 
         function putWord() {
-            var payload = "[\"" + $("#wordInput").val() + "\"]";
+            var wordInput = $("#wordInput").val();
+            var payload = "[\"" + wordInput + "\"]";
             console.log(payload);
-            $.ajax({
-                contentType: 'application/json',
-                data: payload,
-                dataType: 'json',
-                success: function () {
-                    console.log("word input succeeded");
-                    $("#wordInput").val(""); // clear form
-                    alert("Wort eingetragen!");
-                },
-                error: function () {
-                    console.log("Device control failed");
-                    alert("Fehler beim Eintragen!");
-                },
-                processData: false,
-                type: 'PUT',
-                url: 'http://localhost:3000/add-word'
-            });
+            if (/^[a-zA-Z0-9]+$/.test(wordInput)) {
+                $.ajax({
+                    contentType: 'application/json',
+                    data: payload,
+                    dataType: 'json',
+                    success: function (result) {
+                        console.log("word input succeeded: " + JSON.stringify(result));
+                    },
+                    error: function (result) {
+                        console.log("Word submit error: " + JSON.stringify(result));
+                    },
+                    processData: false,
+                    type: 'PUT',
+                    url: 'http://localhost:3000/add-word'
+                });
+                $("#wordInput").val(""); // clear
+            } else {
+                alert("Invalid Word! No whitespaces or symbols are allowed.")
+            }
         };
+
+        // Keyboard events
+        $(document).ready(function () {
+            $('#wordInput').keypress(function (e) {
+                if (e.keyCode == 13)
+                    putWord();
+            });
+        });
     </script>
 </head>
 <body>

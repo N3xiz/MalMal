@@ -8,6 +8,7 @@ var fs = require('fs');
 
 //Game Vards
 var playerQueue = [];
+var canvasData = [];
 var regxp;
 var randomWord;
 const ROUNDTIME = 60; //60 seconds per round
@@ -146,6 +147,8 @@ function stopGameEngine(correctGuessPlayer) {
     drawingPlayer = null;
     gameRunning = false;
     clearInterval(roundTimer);
+    canvasData = []; //Empty picture
+
 
     //Resetting Instruction box, timer and locking canvas.
     playerQueue.forEach(function (element) {
@@ -164,6 +167,12 @@ function checkWord(player, data) {
     if (regxp.test(data) && !(player === drawingPlayer)) {
         stopGameEngine(player);
     }
+}
+
+function sendCanvasData(socket){
+    canvasData.forEach(function (data) {
+        socket.emit('drawing', data)
+    });
 }
 
 function initializeCountdown() {
@@ -243,36 +252,46 @@ app.put('/add-word', (req, res) => {
 
         // Check if word already exists
         for (let existingWord in words) {
-            if (words[existingWord] === wordArray[newWord]) isDuplicate = true;
+            if (words[existingWord] === wordArray[newWord]){
+                isDuplicate = true;
+                console.log(wordArray[newWord] + " is duplicate.");
+            }
         }
 
+
         // If not a duplicate, add it to the array
-        if (isDuplicate) console.log(wordArray[newWord] + ' is a duplicate');
-        else words.push(wordArray[newWord]);
+        if (isDuplicate) {
+            console.log(wordArray[newWord] + ' is a duplicate or has whitespaces.');
+        }
+
+        else {
+            words.push(wordArray[newWord]);
+            console.log("Added Word: " + wordArray[newWord]);
+        }
     }
+
+    fs.writeFileSync('./resources/words.json', JSON.stringify(words), function (err) {
+        if (err) throw err;
+    });
 
     res.status(200).json({message: 'Data has been successfully added'})
 });
 
-/* OLD without chat, only drawing
-function onConnection(socket){
-    socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
-
-}
-
-io.on('connection', onConnection);
-*/
+//START OF SOCKET IMPLEMENTATION
 
 io.on('connection', (socket) => {
     var addedUser = false;
 
-    socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+    socket.on('drawing', (data) => {
+        canvasData.push(data);
+        socket.broadcast.emit('drawing', data)
+    });
 
     // when the client emits 'new message', this listens and executes
-    socket.on('new message', (data) => {
+    socket.on('new_message', (data) => {
 
         // we tell the client to execute 'new message'
-        socket.broadcast.emit('new message', {
+        socket.broadcast.emit('new_message', {
             username: socket.username,
             message: data
         });
@@ -284,7 +303,7 @@ io.on('connection', (socket) => {
     });
 
     // when the client emits 'add user', this listens and executes
-    socket.on('add user', (username) => {
+    socket.on('add_user', (username) => {
         if (addedUser) return;
 
         // we store the username in the socket session for this client
@@ -306,12 +325,14 @@ io.on('connection', (socket) => {
             numUsers: numUsers
         });
         // echo globally (all clients) that a person has connected
-        socket.broadcast.emit('user joined', {
+        socket.broadcast.emit('user_joined', {
             username: socket.username,
             numUsers: numUsers
         });
 
         startGameEngine(); //Try to start game
+
+        sendCanvasData(socket);
     });
 
     // when the client emits 'typing', we broadcast it to others
@@ -322,10 +343,15 @@ io.on('connection', (socket) => {
     });
 
     // when the client emits 'stop typing', we broadcast it to others
-    socket.on('stop typing', () => {
-        socket.broadcast.emit('stop typing', {
+    socket.on('stop_typing', () => {
+        socket.broadcast.emit('stop_typing', {
             username: socket.username
         });
+    });
+
+    // request canvas data
+    socket.on('get_canvas', () => {
+        sendCanvasData(socket);
     });
 
     // when the user disconnects.. perform this

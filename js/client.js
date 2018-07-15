@@ -112,6 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
         canvasRect = canvas.getBoundingClientRect();
         canvas.width = $('#canvasParent').width();
         canvas.height = $('#canvasParent').height();
+        socket.emit('get_canvas');
     }
 
     //Chat
@@ -167,7 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
             $currentInput = $inputMessage.focus();
 
             // Tell the server your username
-            socket.emit('add user', username);
+            socket.emit('add_user', username);
         }
     }
 
@@ -184,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 message: message
             });
             // tell server to execute 'new message' and send along one parameter
-            socket.emit('new message', message);
+            socket.emit('new_message', message);
         }
     }
 
@@ -283,7 +284,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 var typingTimer = (new Date()).getTime();
                 var timeDiff = typingTimer - lastTypingTime;
                 if (timeDiff >= TYPING_TIMER_LENGTH && typing) {
-                    socket.emit('stop typing');
+                    socket.emit('stop_typing');
                     typing = false;
                 }
             }, TYPING_TIMER_LENGTH);
@@ -320,7 +321,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (event.which === 13) {
             if (username) {
                 sendMessage();
-                socket.emit('stop typing');
+                socket.emit('stop_typing');
                 typing = false;
             } else {
                 $('#usernameModal').modal('hide');
@@ -352,18 +353,18 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Whenever the server emits 'new message', update the chat body
-    socket.on('new message', (data) => {
+    socket.on('new_message', (data) => {
         addChatMessage(data);
     });
 
     // Whenever the server emits 'user joined', log it in the chat body
-    socket.on('user joined', (data) => {
+    socket.on('user_joined', (data) => {
         log(data.username + ' joined');
         addParticipantsMessage(data);
     });
 
     // Whenever the server emits 'user left', log it in the chat body
-    socket.on('user left', (data) => {
+    socket.on('user_left', (data) => {
         log(data.username + ' left');
         addParticipantsMessage(data);
         removeChatTyping(data);
@@ -375,7 +376,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Whenever the server emits 'stop typing', kill the typing message
-    socket.on('stop typing', (data) => {
+    socket.on('stop_typing', (data) => {
         removeChatTyping(data);
     });
 
