@@ -57,9 +57,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function onMouseDown(e) {
-        if(allowedToDraw){
+        if (allowedToDraw) {
             drawing = true;
-        } else{
+        } else {
             drawing = false;
         }
 
@@ -230,9 +230,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Removes the visual chat typing message
     const removeChatTyping = (data) => {
-        getTypingMessages(data).$fadeOut(() => {
+        console.log("removeChatTyping called.");
+        getTypingMessages(data).fadeOut(function () {
             $(this).remove();
         });
+        /*
+        getTypingMessages(data).fadeOut(() => {
+            console.log("Fadeout callback.");
+            $(this).remove();
+            console.log("Removed!");
+        });
+        */
     }
 
     // Adds a message element to the messages and scrolls to the bottom
@@ -396,9 +404,9 @@ document.addEventListener("DOMContentLoaded", function () {
     })
 
     socket.on('canvas_unlock', (data) => {
-        if(data == true){
+        if (data == true) {
             allowedToDraw = true;
-        }else{
+        } else {
             allowedToDraw = false;
         }
     });
